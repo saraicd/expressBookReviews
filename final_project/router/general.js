@@ -7,7 +7,9 @@ const public_users = express.Router();
 
 public_users.post("/register", (req,res) => {
   const { username, password } = req.body;
+  const sameUser = isValid(username);
 
+  if(sameUser) return res.status(400).json({message: "Username already exists"})
   if(!username) return res.status(400).json({message: "Username was not provided"})
   if(!password) return res.status(400).json({message: "Password was not provided"})
 
