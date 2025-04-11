@@ -40,7 +40,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   const { review } = req.query;
 
   if (!review) return res.status(400).json({ message: "Review must be provided" });
-console.log(req.session)
+
   const username = req.session.authorization.username;
   if (!username) return res.status(403).json({ message: "You must be logged in to post a review" });
 
@@ -57,6 +57,24 @@ console.log(req.session)
   book.reviews[username] = review;
 
   return res.status(200).json({ message: `Review for book ${book.title} added successfully` });
+});
+
+// Delete a review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const { isbn } = req.params;
+  const username = req.session.authorization.username;
+
+  if (!username) return res.status(401).json({ message: "You must be logged in to delete a review." });
+
+  const book = books[isbn];
+
+  if (!book) return res.status(404).json({ message: "Book not found." });
+
+  if (!book.reviews || !book.reviews[username]) return res.status(404).json({ message: "Review by this user not found." });
+
+  delete book.reviews[username];
+
+  return res.status(200).json({ message: `Review by ${username} for book ${book.title} deleted successfully.` });
 });
 
 module.exports.authenticated = regd_users;
